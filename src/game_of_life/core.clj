@@ -45,7 +45,7 @@
               pos)))
 
 (defn- neighbour-live-cell-count [grid pos]
-  (reduce + (neighbour-values grid pos)))
+  (apply + (neighbour-values grid pos)))
 
 (defn- next-cell-state [grid pos]
   (let [current-state (get-in grid pos)]
