@@ -49,7 +49,7 @@
   (let [grid (q/state :grid)]
     (doseq [[x y] (gol/live-cell-coords @grid)]
       (q/rect (* 10 x) (* 10 y) 10 10))
-    (swap! grid gol/next-gen)))
+    (swap! grid gol/next-generation)))
 
 (defn create-sketch []
   (q/sketch

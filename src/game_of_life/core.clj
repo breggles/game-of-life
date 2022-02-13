@@ -9,8 +9,8 @@
 (defn- set-cell [grid pos value]
   (assoc-in grid pos value))
 
-(defn- kill-cell [grid pos]
-  (set-cell grid pos 0))
+; (defn- kill-cell [grid pos]
+;   (set-cell grid pos 0))
 
 (defn- birth-cell [grid pos]
   (set-cell grid pos 1))
@@ -40,17 +40,12 @@
 (defn- neighbour-values [grid pos]
   (map (partial get-in grid)
        (on-grid-neighbour-coords
-              (count grid)
-              (count (grid 0))
+              (grid-width grid)
+              (grid-height grid)
               pos)))
 
 (defn- neighbour-live-cell-count [grid pos]
   (reduce + (neighbour-values grid pos)))
-
-(defn init-grid [width height live-cell-positions]
-  (reduce birth-cell
-          (empty-grid width height)
-          live-cell-positions))
 
 (defn- next-cell-state [grid pos]
   (let [current-state (get-in grid pos)]
@@ -71,26 +66,37 @@
             pos
             (next-cell-state old-grid pos)))
 
-(defn next-gen [grid]
-  (let [width  (count grid)
-        height (count (grid 0))]
+(defn- pivot [grid]
+  (apply mapv vector grid))
+
+(defn- alive? [grid pos]
+  (= 1 (get-in grid pos)))
+
+(defn- grid-width [grid]
+  (count grid))
+
+(defn- grid-height [grid]
+  (count (grid 0)))
+
+(defn init-grid [width height live-cell-positions]
+  (reduce birth-cell
+          (empty-grid width height)
+          live-cell-positions))
+
+(defn next-generation [grid]
+  (let [width  (grid-width grid)
+        height (grid-height grid)]
     (reduce (partial set-new-cell-state grid)
             (empty-grid width height)
             (all-coords width height))))
 
-(defn- pivot [grid]
-  (apply mapv vector grid))
+(defn live-cell-coords [grid]
+  (filterv (partial alive? grid)
+           (all-coords (grid-width grid) (grid-height grid))))
 
 (defn print-grid [grid]
   (doseq [row (pivot grid)]
     (apply println row)))
-
-(defn alive? [grid pos]
-  (= 1 (get-in grid pos)))
-
-(defn live-cell-coords [grid]
-  (filterv (partial alive? grid)
-           (all-coords (count grid) (count (grid 0)))))
 
 (comment
   (empty-grid 3 4)
@@ -107,11 +113,11 @@
     [0 0])
   (init-grid 3 4 [[0 0] [1 1] [2 2]])
   (next-cell-state (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]]) [0 1])
-  (next-gen (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]]))
+  (next-generation (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]]))
   (pivot (init-grid 3 4 [[0 0] [1 1] [2 2]]))
   (print-grid (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]]))
-  (print-grid (next-gen (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]])))
-  (doseq [generation (take 6 (iterate next-gen
+  (print-grid (next-generation (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]])))
+  (doseq [generation (take 6 (iterate next-generation
                                        (init-grid 3 4 [[0 0]
                                                        [0 1]
                                                        [1 1]
