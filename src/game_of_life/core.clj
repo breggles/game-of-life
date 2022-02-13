@@ -30,10 +30,8 @@
         (repeat pos)))
 
 (defn on-grid? [width height [x y]]
-  (and (>= x 0)
-       (>= y 0)
-       (< x width)
-       (< y height)))
+  (and (< -1 x width)
+       (< -1 y height)))
 
 (defn on-grid-neighbour-coords [width height pos]
   (filter (partial on-grid? width height)
@@ -54,7 +52,7 @@
           (empty-grid width height)
           live-cell-positions))
 
-(defn next-gen-state [grid pos]
+(defn next-cell-state [grid pos]
   (let [current-state (get-in grid pos)]
     (case [current-state
            (neighbour-live-cell-count grid pos)]
@@ -71,12 +69,16 @@
 (defn next-gen [grid]
   (let [width  (count grid)
         height (count (grid 0))]
-    (reduce #(set-cell %1 %2 (next-gen-state grid %2))
+    (reduce #(set-cell %1 %2 (next-cell-state grid %2))
             (empty-grid width height)
             (all-coords width height))))
 
+(defn pivot [grid]
+  (apply mapv vector grid))
+
 (defn print-grid [grid]
-  )
+  (doseq [row (pivot grid)]
+    (apply println row)))
 
 (comment
   (empty-grid 3 4)
@@ -92,7 +94,16 @@
     (birth-cell (birth-cell (empty-grid 3 4) [1 0]) [0 1]) 
     [0 0])
   (init-grid 3 4 [[0 0] [1 1] [2 2]])
-  (next-gen-state (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]]) [0 1])
+  (next-cell-state (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]]) [0 1])
   (next-gen (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]]))
+  (pivot (init-grid 3 4 [[0 0] [1 1] [2 2]]))
   (print-grid (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]]))
+  (print-grid (next-gen (init-grid 3 4 [[0 0] [0 1] [1 1] [2 2]])))
+  (doseq [generation (take 10 (iterate next-gen
+                                       (init-grid 3 4 [[0 0]
+                                                       [0 1]
+                                                       [1 1]
+                                                       [2 2]])))]
+    (print-grid generation)
+    (println))
   )
