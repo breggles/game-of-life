@@ -43,7 +43,6 @@
                                                   [36 4]
                                                   [36 5]
                                                   ]))))
-
 (defn draw []
   (q/background 240)
   (let [grid (q/state :grid)]

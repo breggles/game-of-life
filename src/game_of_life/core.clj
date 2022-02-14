@@ -47,14 +47,14 @@
 (defn- neighbour-live-cell-count [grid pos]
   (apply + (neighbour-values grid pos)))
 
+(def survivor-states #{[0 3] [1 2] [1 3]})
+
 (defn- next-cell-state [grid pos]
-  (let [current-state (get-in grid pos)]
-    (case [current-state
-           (neighbour-live-cell-count grid pos)]
-       [0 3] 1
-       [1 2] 1
-       [1 3] 1
-       0)))
+  (let [current-state [(get-in grid pos)
+                       (neighbour-live-cell-count grid pos)]]
+    (if (contains? survivor-states current-state)
+      1
+      0)))
 
 (defn- all-coords [width height]
   (for [x (range 0 width)
