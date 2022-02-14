@@ -56,11 +56,6 @@
       1
       0)))
 
-(defn- all-coords [width height]
-  (for [x (range 0 width)
-        y (range 0 height)]
-    [x y]))
-
 (defn- set-new-cell-state [old-grid new-grid pos]
   (set-cell new-grid
             pos
@@ -77,6 +72,11 @@
 
 (defn- grid-height [grid]
   (count (grid 0)))
+
+(defn all-coords [width height]
+  (for [x (range 0 width)
+        y (range 0 height)]
+    [x y]))
 
 (defn init-grid [width height live-cell-positions]
   (reduce birth-cell
